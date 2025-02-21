@@ -379,6 +379,33 @@ const MessageInput: FC<OwnProps & StateProps> = ({
     document.addEventListener('keydown', handleCloseContextMenu);
   }
 
+  function exitQuote(e: React.KeyboardEvent<HTMLDivElement>) {
+    const selection = window.getSelection();
+    if (selection && selection.isCollapsed) {
+      const range = selection.getRangeAt(0);
+      let ancestor = range.commonAncestorContainer;
+      if (ancestor.nodeType !== Node.ELEMENT_NODE) {
+        if (ancestor.parentNode) {
+          ancestor = ancestor.parentNode;
+        }
+      }
+
+      const blockquoteElement = (ancestor as Element).closest('blockquote');
+      if (blockquoteElement) {
+        const newRange = document.createRange();
+        newRange.setStartAfter(blockquoteElement);
+        newRange.collapse(true);
+
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+
+        document.execCommand('insertHTML', false, '<br>&#8203;');
+
+        e.preventDefault();
+      }
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // https://levelup.gitconnected.com/javascript-events-handlers-keyboard-and-load-events-1b3e46a6b0c3#1960
     const { isComposing } = e;
@@ -411,6 +438,9 @@ const MessageInput: FC<OwnProps & StateProps> = ({
       e.preventDefault();
       editLastMessage();
     } else {
+      if (e.key === 'Enter'){
+        exitQuote(e);
+      }
       e.target.addEventListener('keyup', processSelectionWithTimeout, { once: true });
     }
   }

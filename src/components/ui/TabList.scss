@@ -1,30 +1,54 @@
+#LeftColumn-main {
+  position: relative;
+}
+
 .TabList {
-  position: sticky;
+  position: absolute;
   top: 0;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: nowrap;
-  box-shadow: 0 2px 2px var(--color-light-shadow);
+  left: 0;
+  width: 100px;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+
   background-color: var(--color-background);
-  overflow-x: auto;
-  overflow-y: hidden;
+  box-shadow: 2px 0 2px var(--color-light-shadow);
 
-  font-size: 1rem;
-
-  padding-inline: 0.5rem;
-
-  scrollbar-width: none;
-  scrollbar-color: rgba(0, 0, 0, 0);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 
   &::-webkit-scrollbar {
-    height: 0;
+    width: 0;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0);
-    // `box-shadow` prevents repaint on macOS when hovering out of scrollable container
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0.01);
+    background-color: transparent;
+    box-shadow: 0 0 1px transparent;
   }
+}
+
+.chat-list.custom-scroll.Transition_slide.Transition_slide-active, .LeftSearch--content.custom-scroll.Transition_slide.Transition_slide-active, .LeftSearch--content.Transition_slide.Transition_slide-active {
+  padding-left: 100px;
+}
+
+.Tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ChatFolder-main-icon {
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+}
+
+.Tab.Tab--active .ChatFolder-main-icon {
+  color: var(--color-primary);
+}
+
+.Tab .Tab_inner {
+  white-space: wrap;
+  font-size: 0.875rem;
 }

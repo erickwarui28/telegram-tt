@@ -17,6 +17,7 @@ import Icon from '../common/icons/Icon';
 import Menu from './Menu';
 import MenuItem from './MenuItem';
 import MenuSeparator from './MenuSeparator';
+import type { IconName } from '../../types/icons';
 
 import './Tab.scss';
 
@@ -131,6 +132,18 @@ const Tab: FC<OwnProps> = ({
   );
   const getLayout = useLastCallback(() => ({ withPortal: true }));
 
+  const iconMappings = [
+    { title: 'All', icon: 'chats-badge' },
+    { title: 'Personal', icon: 'user-filled' },
+    { title: 'Channels', icon: 'channel-filled' },
+    { title: 'Groups', icon: 'group-filled' },
+    { title: 'Bots', icon: 'bots' },
+  ];
+
+  const mapping = iconMappings.find(mapping => mapping.title === (typeof title === 'string' ? title : renderText(title).join('')));
+
+  const iconName: IconName = mapping ? (mapping.icon as IconName) : 'folder';
+
   return (
     <div
       className={buildClassName('Tab', onClick && 'Tab--interactive', className)}
@@ -139,6 +152,7 @@ const Tab: FC<OwnProps> = ({
       onContextMenu={handleContextMenu}
       ref={tabRef}
     >
+      <Icon name={iconName} className={buildClassName('ChatFolder-main-icon', `icon-${iconName}`)} />
       <span className="Tab_inner">
         {typeof title === 'string' ? renderText(title) : title}
         {Boolean(badgeCount) && (

@@ -107,7 +107,6 @@ import { processMessageInputForCustomEmoji } from '../../util/emoji/customEmojiM
 import focusEditableElement from '../../util/focusEditableElement';
 import { MEMO_EMPTY_ARRAY } from '../../util/memo';
 import parseHtmlAsFormattedText from '../../util/parseHtmlAsFormattedText';
-import { insertHtmlInSelection } from '../../util/selection';
 import { getServerTime } from '../../util/serverTime';
 import { IS_IOS, IS_VOICE_RECORDING_SUPPORTED } from '../../util/windowEnvironment';
 import windowSize from '../../util/windowSize';
@@ -526,8 +525,7 @@ const Composer: FC<OwnProps & StateProps> = ({
     if (selection.rangeCount) {
       const selectionRange = selection.getRangeAt(0);
       if (isSelectionInsideInput(selectionRange, inInputId)) {
-        insertHtmlInSelection(newHtml);
-        messageInput.dispatchEvent(new Event('input', { bubbles: true }));
+        document.execCommand('insertHTML', false, newHtml);
         return;
       }
     }

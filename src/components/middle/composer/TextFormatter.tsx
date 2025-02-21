@@ -24,6 +24,7 @@ import Icon from '../../common/icons/Icon';
 import Button from '../../ui/Button';
 
 import './TextFormatter.scss';
+import styles from '../../common/Blockquote.module.scss';
 
 export type OwnProps = {
   isOpen: boolean;
@@ -40,6 +41,7 @@ interface ISelectedTextFormats {
   strikethrough?: boolean;
   monospace?: boolean;
   spoiler?: boolean;
+  quote?: boolean;
 }
 
 const TEXT_FORMAT_BY_TAG_NAME: Record<string, keyof ISelectedTextFormats> = {
@@ -51,6 +53,7 @@ const TEXT_FORMAT_BY_TAG_NAME: Record<string, keyof ISelectedTextFormats> = {
   DEL: 'strikethrough',
   CODE: 'monospace',
   SPAN: 'spoiler',
+  BLOCKQUOTE: 'quote',
 };
 const fragmentEl = document.createElement('div');
 
@@ -248,6 +251,65 @@ const TextFormatter: FC<OwnProps> = ({
     });
   });
 
+  const handleQuoteText = useLastCallback(() => {
+    if (selectedTextFormats.quote) {
+      const element = getSelectedElement();
+      if (
+        !selectedRange
+        || !element
+        || element.dataset.entityType !== ApiMessageEntityTypes.Blockquote
+        || !element.textContent
+      ) {
+        return;
+      }
+
+      const text = getSelectedText();
+      document.execCommand('insertText', false, '');
+      document.execCommand(
+        'insertHTML', false, `${text}`,
+      );
+      setSelectedTextFormats((selectedFormats) => ({
+        ...selectedFormats,
+        quote: false,
+      }));
+
+      return;
+    }
+
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      let prependBr = false;
+      let appendBr = false;
+
+      if (range.startContainer.nodeType === Node.TEXT_NODE) {
+        const startText = range.startContainer.textContent;
+        if (startText && startText.slice(0, range.startOffset).trim() !== '') {
+          prependBr = true;
+        }
+      }
+
+      if (range.endContainer.nodeType === Node.TEXT_NODE) {
+        const endText = range.endContainer.textContent;
+        if (endText && endText.slice(range.endOffset).trim() !== '') {
+          appendBr = true;
+        }
+      }
+
+      let html = '';
+      if (prependBr) {
+        html += '<br>';
+      }
+      html += `<blockquote class="${styles.blockquote}" data-entity-type="${ApiMessageEntityTypes.Blockquote}">${getSelectedText()}</blockquote>`;
+      if (appendBr) {
+        html += '<br>';
+      }
+
+      document.execCommand('insertHTML', false, html);
+    }
+    onClose();
+  });
+
   const handleItalicText = useLastCallback(() => {
     document.execCommand('italic');
     updateSelectedRange();
@@ -353,6 +415,7 @@ const TextFormatter: FC<OwnProps> = ({
       m: handleMonospaceText,
       s: handleStrikethroughText,
       p: handleSpoilerText,
+      q: handleQuoteText,
     };
 
     const handler = HANDLERS_BY_KEY[getKeyFromEvent(e)];
@@ -464,6 +527,14 @@ const TextFormatter: FC<OwnProps> = ({
           onClick={handleMonospaceText}
         >
           <Icon name="monospace" />
+        </Button>
+        <Button
+          color="translucent"
+          ariaLabel="Quote text"
+          className={getFormatButtonClassName('quote')}
+          onClick={handleQuoteText}
+        >
+          <Icon name="quote-text" />
         </Button>
         <div className="TextFormatter-divider" />
         <Button color="translucent" ariaLabel={lang('TextFormat.AddLinkTitle')} onClick={openLinkControl}>
